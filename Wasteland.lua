@@ -36,8 +36,9 @@ function Initialize(Plugin)
 	-- Misc Hooks
 	cPluginManager.AddHook(cPluginManager.HOOK_PLAYER_BROKEN_BLOCK, OnBlockBroken)
 	cPluginManager.AddHook(cPluginManager.HOOK_PLAYER_RIGHT_CLICK, OnPlayerRightClick)
+	cPluginManager.AddHook(cPluginManager.HOOK_BLOCK_SPREAD, OnGrassSpread)
 
-	-- 
+	-- Block Tick Callbacks
 	TickerSetup()
 
 	RegisterTickerCallback('world', E_BLOCK_GRASS, E_META_ANY, OnTickGrassBlock)
@@ -142,6 +143,13 @@ function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, CursorX, 
 
 	if handler ~= nil then
 		return handler(Player, BlockX, BlockY, BlockZ, BlockFace, BlockMeta, CursorX, CursorY, CursorZ)
+	end
+end
+
+-- Grass Spread Handler
+function OnGrassSpread(World, BlockX, BlockY, BlockZ, Source)
+	if Source == ssGrassSpread and not World:IsBlockDirectlyWatered(BlockX, BlockY, BlockZ) then
+		return true
 	end
 end
 
