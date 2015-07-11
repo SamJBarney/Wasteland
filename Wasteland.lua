@@ -44,6 +44,7 @@ function Initialize(Plugin)
 	RegisterTickerCallback('world', E_BLOCK_GRASS, E_META_ANY, OnTickGrassBlock)
 	RegisterTickerCallback('world', E_BLOCK_FARMLAND, E_META_ANY, OnTickGrassBlock)
 	RegisterTickerCallback('world', E_BLOCK_ANY, E_META_ANY, OnMagmaCore)
+	RegisterTickerCallback('world', E_BLOCK_ANY, E_META_ANY, OnSolidifying)
 
 	LOG("Initialized " .. PLUGIN:GetName() .. " v." .. PLUGIN:GetVersion())
 
