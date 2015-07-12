@@ -44,7 +44,6 @@ function Initialize(Plugin)
 	RegisterTickerCallback('world', E_BLOCK_GRASS, E_META_ANY, OnTickGrassBlock)
 	RegisterTickerCallback('world', E_BLOCK_FARMLAND, E_META_ANY, OnTickGrassBlock)
 	RegisterTickerCallback('world', E_BLOCK_ANY, E_META_ANY, OnMagmaCore)
-	RegisterTickerCallback('world', E_BLOCK_ANY, E_META_ANY, OnSolidifying)
 
 	LOG("Initialized " .. PLUGIN:GetName() .. " v." .. PLUGIN:GetVersion())
 
@@ -85,14 +84,39 @@ function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 		-- Cover the chunk with 4 deep in sand
 		for x = 0,15 do
 			for z = 0,15 do
-				local y = ChunkDesc:GetHeight(x,z)
-				ChunkDesc:SetBlockType(x, y + 1, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, y + 2, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, y + 3, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, y + 4, z, E_BLOCK_SAND)
-				if math.random() < 0.0003 then
-					ChunkDesc:SetBlockType(x, y + 5, z, E_BLOCK_DEAD_BUSH)
+				local height = ChunkDesc:GetHeight(x,z)
+				ChunkDesc:SetBlockType(x, height + 1, z, E_BLOCK_SAND)
+				ChunkDesc:SetBlockType(x, height + 2, z, E_BLOCK_SAND)
+				ChunkDesc:SetBlockType(x, height + 3, z, E_BLOCK_SAND)
+				ChunkDesc:SetBlockType(x, height + 4, z, E_BLOCK_SAND)
+				if math.random() < 0.0007 then
+					ChunkDesc:SetBlockType(x, height + 5, z, E_BLOCK_DEAD_BUSH)
 				end
+
+				-- Place lava
+				ChunkDesc:SetBlockType(x, 1, z, E_BLOCK_STATIONARY_LAVA)
+				ChunkDesc:SetBlockType(x, 2, z, E_BLOCK_STATIONARY_LAVA)
+				ChunkDesc:SetBlockType(x, 3, z, E_BLOCK_STATIONARY_LAVA)
+
+				-- Seed Ores
+				for y = 4,height do
+					if ChunkDesc:GetBlockType(x,y,z) == E_BLOCK_STONE then
+						if y < 16 and math.random() < 0.001 then
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_DIAMOND_ORE)
+						elseif y < 25 and math.random() < 0.002 then
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_LAPIS_ORE)
+						elseif y < 25 and math.random() < 0.002 then
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_REDSTONE_ORE)
+						elseif y < 55 and math.random() < 0.01 then 
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_IRON_ORE)
+						elseif math.random() < 0.05 then
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_COAL_ORE)
+						elseif math.random() < 0.0001 then
+							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_EMERALD_ORE)
+						end
+					end
+				end
+
 			end
 		end
 
@@ -139,11 +163,13 @@ end
 
 -- Player Right Click Handler
 function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, CursorX, CursorY, CursorZ)
-	local valid, BlockType, BlockMeta = Player:GetWorld():GetBlockInfo(BlockX, BlockY, BlockZ)
-	local handler = PlayerRightClick[BlockType]
+	local held_item = Player:GetEquippedItem()
+	if held_item.m_ItemCount > 0 then
+		local handler = PlayerRightClick[held_item.m_ItemType]
 
-	if handler ~= nil then
-		return handler(Player, BlockX, BlockY, BlockZ, BlockFace, BlockMeta, CursorX, CursorY, CursorZ)
+		if handler ~= nil then
+			return handler(Player, held_item, BlockX, BlockY, BlockZ, BlockFace, CursorX, CursorY, CursorZ)
+		end
 	end
 end
 
