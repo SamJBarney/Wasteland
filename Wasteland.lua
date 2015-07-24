@@ -1,5 +1,29 @@
 local PLUGIN = nil
 
+
+
+
+
+--- Minimum depth (number of blocks down from surface) of generated ores
+local MIN_ORE_DEPTH = 8
+
+--- Where and how much ores should generate:
+-- Each item in the array represents one ore that is generated in each chunk.
+-- The generator generates up to "count" ore blocks in each chunk in height up to maxHeight (inclusive)
+local g_OreCounts =
+{
+	{blockType = E_BLOCK_DIAMOND_ORE,  maxHeight = 15, count = 8},
+	{blockType = E_BLOCK_LAPIS_ORE,    maxHeight = 24, count = 16},
+	{blockType = E_BLOCK_REDSTONE_ORE, maxHeight = 24, count = 16},
+	{blockType = E_BLOCK_IRON_ORE,     maxHeight = 54, count = 80},
+	{blockType = E_BLOCK_COAL_ORE,     maxHeight = 80, count = 400},
+	{blockType = E_BLOCK_EMERALD_ORE,  maxHeight = 15, count = 1},
+}
+
+
+
+
+
 -- Item Definitions
 dofile(cPluginManager:GetPluginsPath() .. "/Wasteland/Items.lua")
 
@@ -71,6 +95,10 @@ function OnChunkGenerating(World, ChunkX, ChunkZ, ChunkDesc)
 	--return false
 end
 
+
+
+
+
 function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 	--if (RegisteredWorlds[World.GetName()] ~= nil) then
 		-- Replace all water with air
@@ -82,9 +110,9 @@ function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 		ChunkDesc:ReplaceRelCuboid(0,15, 0,255, 0,15, E_BLOCK_DIRT,0, E_BLOCK_DIRT, E_META_DIRT_COARSE)
 
 		-- Cover the chunk with 4 deep in sand
-		for x = 0,15 do
-			for z = 0,15 do
-				local height = ChunkDesc:GetHeight(x,z)
+		for x = 0, 15 do
+			for z = 0, 15 do
+				local height = ChunkDesc:GetHeight(x, z)
 				ChunkDesc:SetBlockType(x, height + 1, z, E_BLOCK_SAND)
 				ChunkDesc:SetBlockType(x, height + 2, z, E_BLOCK_SAND)
 				ChunkDesc:SetBlockType(x, height + 3, z, E_BLOCK_SAND)
@@ -97,34 +125,37 @@ function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 				ChunkDesc:SetBlockType(x, 1, z, E_BLOCK_STATIONARY_LAVA)
 				ChunkDesc:SetBlockType(x, 2, z, E_BLOCK_STATIONARY_LAVA)
 				ChunkDesc:SetBlockType(x, 3, z, E_BLOCK_STATIONARY_LAVA)
+			end  -- for z
+		end  -- for x
 
-				-- Seed Ores
-				for y = 4,height do
-					if ChunkDesc:GetBlockType(x,y,z) == E_BLOCK_STONE then
-						if y < 16 and math.random() < 0.001 then
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_DIAMOND_ORE)
-						elseif y < 25 and math.random() < 0.002 then
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_LAPIS_ORE)
-						elseif y < 25 and math.random() < 0.002 then
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_REDSTONE_ORE)
-						elseif y < 55 and math.random() < 0.01 then 
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_IRON_ORE)
-						elseif math.random() < 0.05 then
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_COAL_ORE)
-						elseif math.random() < 0.0001 then
-							ChunkDesc:SetBlockType(x, y, z, E_BLOCK_EMERALD_ORE)
-						end
+		-- Seed Ores:
+		for _, oreCount in ipairs(g_OreCounts) do
+			for i = 1, oreCount.count do
+				local x = math.random(15)
+				local z = math.random(15)
+				local height = ChunkDesc:GetHeight(x, z)
+				if (height > MIN_ORE_DEPTH) then
+					local maxHeight = height - MIN_ORE_DEPTH
+					if (maxHeight > oreCount.maxHeight - 4) then
+						maxHeight = oreCount.maxHeight - 4
 					end
-				end
+					local y = 4 + math.random(maxHeight)
+					if (ChunkDesc:GetBlockType(x, y, z) == E_BLOCK_STONE) then
+						ChunkDesc:SetBlockType(x, y, z, oreCount.blockType)
+					end
+				end   -- if (height acceptable)
+			end  -- for i
+		end  -- for oreCount - g_OreCounts[]
 
-			end
-		end
-		
 		-- After changing the chunk, we need the server to recalculate the heightmap:
 		ChunkDesc:UpdateHeightmap()
 		
 		return true
 end
+
+
+
+
 
 -- Crafting Callbacks
 function OnPreCrafting(Player, Grid, Recipe)
