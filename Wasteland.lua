@@ -119,10 +119,11 @@ function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 
 			end
 		end
-
+		
+		-- After changing the chunk, we need the server to recalculate the heightmap:
+		ChunkDesc:UpdateHeightmap()
+		
 		return true
-	--end
-	--return false
 end
 
 -- Crafting Callbacks
