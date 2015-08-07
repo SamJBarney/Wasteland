@@ -186,6 +186,7 @@ end
 
 
 -- Block Breaking Callback
+-- If we have a handler for the block being broken, call it and return the result
 function OnBlockBroken(Player, BlockX, BlockY, BlockZ, BlockFace, BlockType, BlockMeta)
 	local handler = BrokenBlockHooks[BlockType]
 	if handler ~= nil then
@@ -194,6 +195,7 @@ function OnBlockBroken(Player, BlockX, BlockY, BlockZ, BlockFace, BlockType, Blo
 end
 
 -- Player Right Click Handler
+-- If we have a handler for the item being used, call it and return the result
 function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, CursorX, CursorY, CursorZ)
 	local held_item = Player:GetEquippedItem()
 	if held_item.m_ItemCount > 0 then
@@ -206,6 +208,7 @@ function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, CursorX, 
 end
 
 -- Grass Spread Handler
+-- Grass should only be able to spread if the block is directly watered
 function OnGrassSpread(World, BlockX, BlockY, BlockZ, Source)
 	if Source == ssGrassSpread and not World:IsBlockDirectlyWatered(BlockX, BlockY, BlockZ) then
 		return true
