@@ -20,6 +20,19 @@ local g_OreCounts =
 	{blockType = E_BLOCK_EMERALD_ORE,  maxHeight = 15, count = 1},
 }
 
+--- How much sand should generate based on height
+-- The higher the initial height of the chunk, the less sand gets placed.
+local g_SandDepth =
+{
+	6, 6,     -- 20  - 59
+	5,        -- 60  - 79
+	4, 4,     -- 80  - 119
+	3,        -- 120 - 139
+	2,        -- 140 - 159
+	1,        -- 160 - 179
+	0,0,0,0,0 -- 180+
+}
+
 
 
 
@@ -109,16 +122,21 @@ function OnChunkGenerated(World, ChunkX, ChunkZ, ChunkDesc)
 		ChunkDesc:ReplaceRelCuboid(0,15, 0,255, 0,15, E_BLOCK_CLAY,0, E_BLOCK_HARDENED_CLAY,0)
 		ChunkDesc:ReplaceRelCuboid(0,15, 0,255, 0,15, E_BLOCK_DIRT,0, E_BLOCK_DIRT, E_META_DIRT_COARSE)
 
-		-- Cover the chunk with 4 deep in sand
+		-- Cover the chunk with the correct amount of sand
+		-- and fill the bottom three layers of the world with lava
 		for x = 0, 15 do
 			for z = 0, 15 do
 				local height = ChunkDesc:GetHeight(x, z)
-				ChunkDesc:SetBlockType(x, height + 1, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, height + 2, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, height + 3, z, E_BLOCK_SAND)
-				ChunkDesc:SetBlockType(x, height + 4, z, E_BLOCK_SAND)
-				if math.random() < 0.0007 then
-					ChunkDesc:SetBlockType(x, height + 5, z, E_BLOCK_DEAD_BUSH)
+				local sand_depth = g_SandDepth[math.floor(height/20)]
+
+				-- If sand is supposed to be placed here, place it
+				if sand_depth > 0 then
+					for offset = 1, sand_depth do
+						ChunkDesc:SetBlockType(x, height + offset, z, E_BLOCK_SAND)
+					end
+				end
+				if (ChunkDesc:GetBlockType(x, height + sand_depth, z) == E_BLOCK_SAND) and (math.random() < 0.0007) then
+					ChunkDesc:SetBlockType(x, height + sand_depth + 1, z, E_BLOCK_DEAD_BUSH)
 				end
 
 				-- Place lava
