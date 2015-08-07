@@ -226,9 +226,9 @@ function OnPlayerRightClick(Player, BlockX, BlockY, BlockZ, BlockFace, CursorX, 
 end
 
 -- Grass Spread Handler
--- Grass should only be able to spread if the block is directly watered
+-- Grass should only be able to spread if the biome is not desert or the block is directly watered
 function OnGrassSpread(World, BlockX, BlockY, BlockZ, Source)
-	if Source == ssGrassSpread and not World:IsBlockDirectlyWatered(BlockX, BlockY, BlockZ) then
+	if Source == ssGrassSpread and World:GetBiomeAt(BlockX, BlockZ) == biDesert and not World:IsBlockDirectlyWatered(BlockX, BlockY, BlockZ) then
 		return true
 	end
 end
