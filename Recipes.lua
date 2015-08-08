@@ -3,6 +3,8 @@ wasteland_Recipes = {}
 local function setup()
 	local stick = cItem(E_ITEM_STICK)
 	local seeds = w_Items['wasteland:seed']
+	local obsidian = cItem(E_BLOCK_OBSIDIAN)
+	local diamond_block = cItem(E_BLOCK_DIAMOND_BLOCK)
 
 	-- Planks
 	local tmp = CraftingRecipe_new(2,2)
@@ -25,8 +27,19 @@ local function setup()
 	CraftingRecipe_SetItem(tmp,0,2, seeds)
 	CraftingRecipe_SetItem(tmp,1,2, seeds)
 	CraftingRecipe_SetItem(tmp,2,2, seeds)
+	table.insert(wasteland_Recipes, tmp)
 
-
+	tmp = CraftingRecipe_new(3,3)
+	CraftingRecipe_SetResult(tmp, cItem(E_ITEM_NETHER_STAR))
+	CraftingRecipe_SetItem(tmp,0,0, diamond_block)
+	CraftingRecipe_SetItem(tmp,1,0, diamond_block)
+	CraftingRecipe_SetItem(tmp,2,0, diamond_block)
+	CraftingRecipe_SetItem(tmp,0,1, diamond_block)
+	CraftingRecipe_SetItem(tmp,1,1, obsidian)
+	CraftingRecipe_SetItem(tmp,2,1, diamond_block)
+	CraftingRecipe_SetItem(tmp,0,2, diamond_block)
+	CraftingRecipe_SetItem(tmp,1,2, diamond_block)
+	CraftingRecipe_SetItem(tmp,2,2, diamond_block)
 	table.insert(wasteland_Recipes, tmp)
 end
 
