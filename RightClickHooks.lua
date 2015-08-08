@@ -27,6 +27,6 @@ PlayerRightClick[E_ITEM_SEEDS] = function(Player, HeldItem, BlockX, BlockY, Bloc
 				HeldItem.m_ItemType = E_BLOCK_AIR
 			end
 		end
+		return true
 	end
-	return true
 end
